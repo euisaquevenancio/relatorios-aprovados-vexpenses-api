@@ -108,8 +108,15 @@ async function main() {
             dataVencimento: dataVencimento,
             centroCustos: CENTRO_CUSTOS
         });
+    }
 
-        console.log(`✅ #${contadorRelatorios} | ${relatorios[(contadorRelatorios-1)].numeroRelatorio} | ${relatorios[(contadorRelatorios-1)].mantenedora} | ${relatorios[(contadorRelatorios-1)].nomeSolicitante} | ${relatorios[(contadorRelatorios-1)].valorRelatorio} | ${relatorios[(contadorRelatorios-1)].dataAprovacaoGestor} | ${relatorios[(contadorRelatorios-1)].dataVencimento} | ${relatorios[(contadorRelatorios-1)].tipoRelatorio} | ${relatorios[(contadorRelatorios-1)].centroCustos}`);
+    if (contadorRelatorios > 0) {
+        console.log(`✅ Novos relatórios aprovados: ${contadorRelatorios}\n`);
+        for (let i = 0; i < relatorios.length; i++) {
+            console.log(`✅ #${(i+1)} | ${relatorios[i].numeroRelatorio} | ${relatorios[i].mantenedora} | ${relatorios[i].nomeSolicitante} | ${relatorios[i].valorRelatorio} | ${relatorios[i].dataAprovacaoGestor} | ${relatorios[i].dataVencimento} | ${relatorios[i].tipoRelatorio} | ${relatorios[i].centroCustos}`);
+        }
+    } else {
+        console.log(`✅ Não há novos relatórios aprovados: ${contadorRelatorios}\n`);
     }
 
     const HORARIO_FIM = new Date().toLocaleTimeString("pt-BR");
@@ -119,6 +126,7 @@ async function main() {
     await salvarRelatorios();
 }
 
+// Função para capturar os relatórios aprovados
 async function capturarRelatoriosAprovados() {
     const responseRelatoriosAprovados = await fetch(
         "https://api.vexpenses.com/v2/reports/status/APROVADO",
@@ -135,6 +143,7 @@ async function capturarRelatoriosAprovados() {
     return dataRelatoriosAprovados.data;
 }
 
+// Função para capturar as despesas do relatório informado
 async function capturarDespesasRelatorio(idRelatorio) {
     const responseDespesa = await fetch(
         `https://api.vexpenses.com/v2/reports/${idRelatorio}?include=expenses%2Cexpenses.apportionment%2Cexpenses.expense_type%2Cexpenses.fueling%2Cuser%2Chistory%2Capproval%2Cpayment_method%2Cexpenses.costs_center`,
@@ -182,6 +191,7 @@ function calcularDiferencaHoras(HORARIO_INICIO, HORARIO_FIM) {
     }
 }
 
+// Função para converter um valor para o tipo data
 function converterParaData(data) {
     if (!data) return null;
 
@@ -206,6 +216,7 @@ function converterParaData(data) {
     return null;
 }
 
+// Função para salvar os relatórios em Excel
 async function salvarRelatorios() {
     const PASTA_DESTINO = PATH.join(__dirname, "dados");
 
