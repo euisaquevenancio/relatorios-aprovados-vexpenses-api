@@ -51,7 +51,10 @@ async function main() {
         const CENTRO_CUSTOS = dataDespesas.data.expenses.data[0].costs_center.data.integration_id;
         const MOEDA = dataDespesas.data.expenses.data[0].original_currency_iso;
         const NOME_SOLICITANTE = dataDespesas.data.user.data.name;
-        let tipoRelatorio = dataDespesas.data.payment_method.data.description.toUpperCase();
+        let tipoRelatorio = "VERIFICAR";
+        if (dataDespesas.data.payment_method.data.description != undefined) {
+            tipoRelatorio = dataDespesas.data.payment_method.data.description.toUpperCase();
+        }
 
         if (tipoRelatorio == "REEMBOLSO GASTOS EVENTUAIS") {
             tipoRelatorio = "REEMBOLSO";
@@ -75,16 +78,15 @@ async function main() {
         }
 
         let mantenedora = parseInt(dataDespesas[0].apportionment.data[0].integration_id[0]);
-        switch (mantenedora) {
-            case 1:
-                mantenedora = "ABEC";
-            case 2:
-                mantenedora = "SOME";
-            case 3:
-                mantenedora = "UBEE";
-            case 4:
-                mantenedora = "UNBEC";
-        };
+        if (mantenedora == 1) {
+            mantenedora = "1 ABEC";
+        } else if (mantenedora == 2) {
+            mantenedora = "2 SOME";
+        } else if (mantenedora == 3) {
+            mantenedora = "3 UBEE";
+        } else {
+            mantenedora = "4 UNBEC";
+        }
 
         if (MOEDA == "BRL") {
             valorTotalDespesas = valorTotalDespesas.toFixed(2).replace(".", ",");
