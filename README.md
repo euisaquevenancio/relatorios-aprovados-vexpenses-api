@@ -1,4 +1,4 @@
-# Consulta Relatórios Aprovados Vexpenses (API) 🔑✈️✅
+# Automação Relatórios Aprovados Vexpenses (API) 🔑✈️✅
 
 Automação destinada para a captura de relatórios aprovados no Vexpenses das mantenedoras **ABEC**, **SOME**, **UBEE** e **UNBEC**, desenvolvida com Node.js. A coleta é feita através da API oficial, garantindo uma extração mais rápida das informações necessárias.
 
