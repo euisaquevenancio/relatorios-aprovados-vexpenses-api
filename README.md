@@ -4,7 +4,7 @@ Automação destinada para a captura de relatórios aprovados no Vexpenses das m
 
 O processo inicia com a validação do token e acesso a API do Vexpenses, seguido da coleta do **Número do relatório**, **Total**, **Nome do Solicitante**, **Tipo** (reembolso, adiantamento ou prestação de contas), **Data de Aprovação Gestor**, **Data de Vencimento** e **Centro de Custos**. Registros já processados são desconsiderados com base no arquivo `relatoriosIgnorados.txt`.
 
-Por fim, todos os relatóriso processados são consolidados em uma **planilha**, que é gerada e aberta automaticamente ao final da execução.
+Por fim, todos os relatórios processados são consolidados em uma **planilha**, que é gerada e aberta automaticamente ao final da execução.
 
 ## Variáveis de ambiente
 
