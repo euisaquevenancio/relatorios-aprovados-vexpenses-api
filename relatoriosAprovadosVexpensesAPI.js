@@ -48,7 +48,9 @@ async function main() {
         let dataAprovacaoGestor = dataDespesas.data.approval.data[0].created_at.substring(0, 10).replaceAll("-", "/").split("/").reverse().join("/");
         let dataVencimento = dataDespesas.data.approval.data[1].comentarioAprovacao;
 
-        const CENTRO_CUSTOS = dataDespesas.data.expenses.data[0].costs_center.data.integration_id;
+        let CENTRO_CUSTOS = "VERIFICAR";
+        if (dataDespesas.data.expenses.data[0].costs_center.data.integration_id != null) CENTRO_CUSTOS = dataDespesas.data.expenses.data[0].costs_center.data.integration_id;
+
         const MOEDA = dataDespesas.data.expenses.data[0].original_currency_iso;
         const NOME_SOLICITANTE = dataDespesas.data.user.data.name;
         let tipoRelatorio = "VERIFICAR";
@@ -91,9 +93,9 @@ async function main() {
         if (MOEDA == "BRL") {
             valorTotalDespesas = valorTotalDespesas.toFixed(2).replace(".", ",");
         } else if (MOEDA == "USD") {
-            valorTotalDespesas = "$ " + valorTotalDespesas.toFixed(2);
+            valorTotalDespesas = "$" + valorTotalDespesas.toFixed(2);
         } else {
-            valorTotalDespesas = "€ " + valorTotalDespesas.toFixed(2);
+            valorTotalDespesas = "€" + valorTotalDespesas.toFixed(2);
         }
 
         // Adicionando o relatório na lista
@@ -116,7 +118,7 @@ async function main() {
             console.log(`✅ #${(i+1)} | ${relatorios[i].numeroRelatorio} | ${relatorios[i].mantenedora} | ${relatorios[i].nomeSolicitante} | ${relatorios[i].valorRelatorio} | ${relatorios[i].dataAprovacaoGestor} | ${relatorios[i].dataVencimento} | ${relatorios[i].tipoRelatorio} | ${relatorios[i].centroCustos}`);
         }
     } else {
-        console.log(`✅ Não há novos relatórios aprovados: ${contadorRelatorios}\n`);
+        console.log(`\n✅ Não há novos relatórios aprovados: ${contadorRelatorios}`);
     }
 
     const HORARIO_FIM = new Date().toLocaleTimeString("pt-BR");
@@ -226,7 +228,7 @@ async function salvarRelatorios() {
     }
 
     // Captura o arquivo Excel
-    const ARQUIVO_EXCEL = PATH.join(PASTA_DESTINO, "relatorios.xlsx");
+    const ARQUIVO_EXCEL = PATH.join(PASTA_DESTINO, "relatoriosAprovados.xlsx");
 
     const WORKBOOK = new EXCEL_JS.Workbook();
     // Se o arquivo existe, lê
