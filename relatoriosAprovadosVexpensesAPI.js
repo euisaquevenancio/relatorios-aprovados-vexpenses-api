@@ -48,26 +48,17 @@ async function main() {
         let dataAprovacaoGestor = dataDespesas.data.approval.data[0].created_at.substring(0, 10).replaceAll("-", "/").split("/").reverse().join("/");
         let dataVencimento = dataDespesas.data.approval.data[1].comentarioAprovacao;
 
-        let CENTRO_CUSTOS = "VERIFICAR";
-        if (dataDespesas.data.expenses.data[0].costs_center.data.integration_id != null) CENTRO_CUSTOS = dataDespesas.data.expenses.data[0].costs_center.data.integration_id;
-
+        const CENTRO_CUSTOS = dataDespesas.data.expenses.data[0].costs_center.data.name.slice(0, 5);
         const MOEDA = dataDespesas.data.expenses.data[0].original_currency_iso;
         const NOME_SOLICITANTE = dataDespesas.data.user.data.name;
+        
         let tipoRelatorio = "VERIFICAR";
-        if (dataDespesas.data.payment_method.data.description != undefined) {
-            tipoRelatorio = dataDespesas.data.payment_method.data.description.toUpperCase();
-        }
-
-        if (tipoRelatorio == "REEMBOLSO GASTOS EVENTUAIS") {
+        if (dataDespesas.data.expenses.data[0].payment_method_id == 639919 || dataDespesas.data.expenses.data[0].payment_method_id == 659335) {
             tipoRelatorio = "REEMBOLSO";
-        } else if (tipoRelatorio == "PRESTAÇÃO DE CONTAS DO ADIANTAMENTO" || tipoRelatorio == "PRESTAÇÃO DE CONTAS ADIANTAMENTO - MOEDA ESTRANGEIRA") {
+        } else if (dataDespesas.data.expenses.data[0].payment_method_id == 640034) {
+            tipoRelatorio = "ADIANTAMENTO";
+        } else if (dataDespesas.data.expenses.data[0].payment_method_id == 652193 || dataDespesas.data.expenses.data[0].payment_method_id == 654665) {
             tipoRelatorio = "PRESTAÇÃO DE CONTAS";
-        }
-
-        if (tipoRelatorio == "REEMBOLSO" || tipoRelatorio == "ADIANTAMENTO") {
-            dataVencimento = dataVencimento.trim().match(/\d{2}\/\d{2}/)?.[0] + "/2026";
-        } else {
-            dataVencimento = dataDespesas.data.approval.data[1].created_at.substring(0, 10).replaceAll("-", "/").split("/").reverse().join("/");
         }
 
         dataDespesas = dataDespesas.data.expenses.data;
@@ -76,10 +67,25 @@ async function main() {
         let valorTotalDespesas = 0;
 
         for (let j = 0; j < QUANTIDADE_DESPESAS; j++) {
+            if (dataDespesas[j].expense_type.data.description.toUpperCase() == "DEVOLUÇÃO DE ADIANTAMENTO") {
+                dataVencimento = dataDespesas[j].created_at.substring(0, 10).replaceAll("-", "/").split("/").reverse().join("/");
+            }
             valorTotalDespesas += dataDespesas[j].value;
         }
 
-        let mantenedora = parseInt(dataDespesas[0].apportionment.data[0].integration_id[0]);
+        if (tipoRelatorio == "REEMBOLSO" || tipoRelatorio == "ADIANTAMENTO") {
+            dataVencimento = dataVencimento.trim().match(/\d{2}\/\d{2}/)?.[0] + "/2026";
+        } else {
+            if (dataDespesas.data != undefined) {
+                dataVencimento = dataDespesas.data.approval.data[1].created_at.substring(0, 10).replaceAll("-", "/").split("/").reverse().join("/");
+            }
+
+            if (dataVencimento.indexOf("/") > -1) {
+                dataVencimento = dataDespesas[0].date.substring(0, 10).replaceAll("-", "/").split("/").reverse().join("/");
+            }
+        }
+
+        let mantenedora = parseInt(dataDespesas[0].apportionment.data[0].description[0]);
         if (mantenedora == 1) {
             mantenedora = "1 ABEC";
         } else if (mantenedora == 2) {
@@ -110,13 +116,12 @@ async function main() {
             dataVencimento: dataVencimento,
             centroCustos: CENTRO_CUSTOS
         });
+
+        console.log(`✅ #${(contadorRelatorios)} | ${dataRelatoriosAprovados[i].id} | ${mantenedora} | ${NOME_SOLICITANTE} | ${valorTotalDespesas} | ${dataAprovacaoGestor} | ${dataVencimento} | ${tipoRelatorio} | ${CENTRO_CUSTOS}`);
     }
 
     if (contadorRelatorios > 0) {
-        console.log(`✅ Novos relatórios aprovados: ${contadorRelatorios}\n`);
-        for (let i = 0; i < relatorios.length; i++) {
-            console.log(`✅ #${(i+1)} | ${relatorios[i].numeroRelatorio} | ${relatorios[i].mantenedora} | ${relatorios[i].nomeSolicitante} | ${relatorios[i].valorRelatorio} | ${relatorios[i].dataAprovacaoGestor} | ${relatorios[i].dataVencimento} | ${relatorios[i].tipoRelatorio} | ${relatorios[i].centroCustos}`);
-        }
+        console.log(`\n✅ Novos relatórios aprovados: ${contadorRelatorios}`);
     } else {
         console.log(`\n✅ Não há novos relatórios aprovados: ${contadorRelatorios}`);
     }
@@ -147,6 +152,7 @@ async function capturarRelatoriosAprovados() {
 
 // Função para capturar as despesas do relatório informado
 async function capturarDespesasRelatorio(idRelatorio) {
+    await new Promise((r) => setTimeout(r, 500));
     const responseDespesa = await fetch(
         `https://api.vexpenses.com/v2/reports/${idRelatorio}?include=expenses%2Cexpenses.apportionment%2Cexpenses.expense_type%2Cexpenses.fueling%2Cuser%2Chistory%2Capproval%2Cpayment_method%2Cexpenses.costs_center`,
         {
