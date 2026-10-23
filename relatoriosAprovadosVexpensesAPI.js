@@ -104,6 +104,10 @@ async function main() {
             valorTotalDespesas = "€" + valorTotalDespesas.toFixed(2);
         }
 
+        if (dataVencimento.indexOf("/") == -1) {
+            dataVencimento = new Date().toLocaleDateString("pt-BR");
+        }
+
         // Adicionando o relatório na lista
         relatorios.push({
             numeroRelatorio: dataRelatoriosAprovados[i].id,
