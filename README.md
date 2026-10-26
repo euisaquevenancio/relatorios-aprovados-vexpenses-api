@@ -20,6 +20,13 @@ Para executar a automação, é necessário instalar todos os arquivos presentes
     npm install
 ```
 
+Caso as bibliotecas não sejam baixadas, será necessário instalar uma de cada vez executando no terminal:
+
+```bash
+    npm install dotenv
+    npm install exceljs
+```
+
 Após a instalação, execute o comando abaixo no terminal para iniciar a automação:
 
 ```bash
